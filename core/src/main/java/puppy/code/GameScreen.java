@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 
 /**
  * Pantalla principal donde ocurre el juego.
- * Extiende BaseScreen aplicando Template Method.
+ * Extiende BaseScreen aplicando Template Method (GM-8).
  */
 public class GameScreen extends BaseScreen {
 
@@ -23,11 +23,15 @@ public class GameScreen extends BaseScreen {
     private Texture survivorTexture;
     private Texture recursoTexture;
     private Texture peligroTexture;
+    private Texture vidaTexture;
+    private Texture escudoTexture;
     private Texture fondoTexture;
 
     // sonidos
     private Sound sonidoRecolectar;
     private Sound sonidoDanio;
+    private Sound sonidoVida;
+    private Sound sonidoEscudo;
     private Music musicaFondo;
 
     public GameScreen(GameLluvia game) {
@@ -41,31 +45,44 @@ public class GameScreen extends BaseScreen {
         survivorTexture = new Texture(Gdx.files.internal("survivor.png"));
         recursoTexture = new Texture(Gdx.files.internal("recurso.png"));
         peligroTexture = new Texture(Gdx.files.internal("peligro.png"));
+        vidaTexture = new Texture(Gdx.files.internal("vida.png"));
+        escudoTexture = new Texture(Gdx.files.internal("escudo.png"));
 
         // cargar sonidos
         sonidoRecolectar = Gdx.audio.newSound(Gdx.files.internal("recolectar.mp3"));
         sonidoDanio = Gdx.audio.newSound(Gdx.files.internal("danio.mp3"));
+        sonidoVida = Gdx.audio.newSound(Gdx.files.internal("recolectar.mp3"));
+        sonidoEscudo = Gdx.audio.newSound(Gdx.files.internal("recolectar.mp3"));
         musicaFondo = Gdx.audio.newMusic(Gdx.files.internal("musica_fondo.mp3"));
 
-        // iniciar musica de fondo
         musicaFondo.setLooping(true);
         musicaFondo.play();
 
-        // crear survivor
         survivor = new Survivor(survivorTexture, sonidoDanio);
-
-        // crear lista de drops
         drops = new Array<>();
         spawnDrop();
     }
 
+    /**
+     * Genera un nuevo drop aleatorio.
+     * Probabilidades: 60% recurso, 25% peligro, 10% vida, 5% escudo.
+     */
     private void spawnDrop() {
         GameManager gm = GameManager.getInstance();
         DropItem drop;
+        int random = MathUtils.random(1, 100);
 
-        if (MathUtils.random(1, 10) < 3) {
+        if (random <= 5) {
+            // 5% escudo de invencibilidad
+            drop = DropBuilder.crearEscudo(escudoTexture, gm.getVelocidadBase(), sonidoEscudo);
+        } else if (random <= 15) {
+            // 10% vida extra
+            drop = DropBuilder.crearVida(vidaTexture, gm.getVelocidadBase(), sonidoVida);
+        } else if (random <= 40) {
+            // 25% peligro
             drop = DropBuilder.crearPeligro(peligroTexture, gm.getVelocidadBase());
         } else {
+            // 60% recurso normal
             drop = DropBuilder.crearRecurso(recursoTexture, gm.getVelocidadBase(), sonidoRecolectar);
         }
 
@@ -114,11 +131,8 @@ public class GameScreen extends BaseScreen {
 
     @Override
     protected void draw(SpriteBatch batch) {
-        // dibujar fondo cubriendo toda la pantalla
         batch.draw(fondoTexture, 0, 0, 800, 480);
-
         survivor.draw(batch);
-
         for (DropItem drop : drops) {
             drop.draw(batch);
         }
@@ -130,6 +144,9 @@ public class GameScreen extends BaseScreen {
         font.draw(batch, "Puntos: " + gm.getPuntaje(), 10, 470);
         font.draw(batch, "Vidas: " + gm.getVidas(), 710, 470);
         font.draw(batch, "Nivel: " + gm.getNivel(), 370, 470);
+        if (survivor.estaInvencible()) {
+            font.draw(batch, "ESCUDO ACTIVO!", 330, 450);
+        }
     }
 
     @Override
@@ -137,9 +154,13 @@ public class GameScreen extends BaseScreen {
         musicaFondo.dispose();
         sonidoRecolectar.dispose();
         sonidoDanio.dispose();
+        sonidoVida.dispose();
+        sonidoEscudo.dispose();
         survivorTexture.dispose();
         recursoTexture.dispose();
         peligroTexture.dispose();
+        vidaTexture.dispose();
+        escudoTexture.dispose();
         fondoTexture.dispose();
     }
 }

@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 
 /**
  * Clase que construye objetos DropItem paso a paso.
- * Implementa el patron Builder.
+ * Implementa el patron Builder (GM-9).
  */
 public class DropBuilder {
 
@@ -16,107 +16,88 @@ public class DropBuilder {
     private Sound sonido;
     private int puntos;
     private int daño;
-    private boolean esPeligro;
+    private float duracionEscudo;
+    private String tipo;
 
-    /**
-     * Constructor del Builder con valores por defecto.
-     */
     public DropBuilder() {
         this.velocidadY = 300f;
         this.strategy = new NormalFall();
         this.puntos = 10;
         this.daño = 1;
-        this.esPeligro = false;
+        this.duracionEscudo = 3f;
+        this.tipo = "recurso";
     }
 
-    /**
-     * Establece la textura del drop.
-     * @param texture la textura a usar
-     * @return este Builder para encadenar llamadas
-     */
     public DropBuilder conTextura(Texture texture) {
         this.texture = texture;
         return this;
     }
 
-    /**
-     * Establece la velocidad de caida.
-     * @param velocidadY la velocidad de caida
-     * @return este Builder para encadenar llamadas
-     */
     public DropBuilder conVelocidad(float velocidadY) {
         this.velocidadY = velocidadY;
         return this;
     }
 
-    /**
-     * Establece la estrategia de movimiento.
-     * @param strategy la estrategia de movimiento
-     * @return este Builder para encadenar llamadas
-     */
     public DropBuilder conEstrategia(MovementStrategy strategy) {
         this.strategy = strategy;
         return this;
     }
 
-    /**
-     * Establece el sonido de recoleccion (solo para recursos).
-     * @param sonido el sonido al recolectar
-     * @return este Builder para encadenar llamadas
-     */
     public DropBuilder conSonido(Sound sonido) {
         this.sonido = sonido;
         return this;
     }
 
-    /**
-     * Establece los puntos que otorga (solo para recursos).
-     * @param puntos los puntos a otorgar
-     * @return este Builder para encadenar llamadas
-     */
     public DropBuilder conPuntos(int puntos) {
         this.puntos = puntos;
         return this;
     }
 
-    /**
-     * Establece el daño que inflige (solo para peligros).
-     * @param daño el daño a infligir
-     * @return este Builder para encadenar llamadas
-     */
     public DropBuilder conDaño(int daño) {
         this.daño = daño;
         return this;
     }
 
-    /**
-     * Define que el drop sera un peligro.
-     * @return este Builder para encadenar llamadas
-     */
+    public DropBuilder conDuracionEscudo(float duracion) {
+        this.duracionEscudo = duracion;
+        return this;
+    }
+
     public DropBuilder comoPeligro() {
-        this.esPeligro = true;
+        this.tipo = "peligro";
         return this;
     }
 
-    /**
-     * Define que el drop sera un recurso.
-     * @return este Builder para encadenar llamadas
-     */
     public DropBuilder comoRecurso() {
-        this.esPeligro = false;
+        this.tipo = "recurso";
         return this;
     }
 
-    /**
-     * Construye el DropItem final con la configuracion establecida.
-     * @return un ResourceDrop o DangerDrop segun la configuracion
-     */
+    public DropBuilder comoVida() {
+        this.tipo = "vida";
+        return this;
+    }
+
+    public DropBuilder comoEscudo() {
+        this.tipo = "escudo";
+        return this;
+    }
+
     public DropItem build() {
         DropItem drop;
-        if (esPeligro) {
-            drop = new DangerDrop(texture, velocidadY, daño);
-        } else {
-            drop = new ResourceDrop(texture, velocidadY, sonido, puntos);
+        switch (tipo) {
+            case "peligro":
+                drop = new DangerDrop(texture, velocidadY, daño);
+                break;
+            case "vida":
+                drop = new HealDrop(texture, velocidadY, sonido);
+                break;
+            case "escudo":
+                drop = new ShieldDrop(texture, velocidadY, sonido, duracionEscudo);
+                break;
+            default:
+                drop = new ResourceDrop(texture, velocidadY, sonido, puntos);
+                break;
         }
         drop.setMovementStrategy(strategy);
         return drop;
@@ -124,13 +105,6 @@ public class DropBuilder {
 
     // ==================== Metodos de fabrica rapidos ====================
 
-    /**
-     * Crea un recurso con configuracion predeterminada.
-     * @param texture textura del recurso
-     * @param velocidad velocidad de caida
-     * @param sonido sonido al recolectar
-     * @return un ResourceDrop configurado
-     */
     public static DropItem crearRecurso(Texture texture, float velocidad, Sound sonido) {
         return new DropBuilder()
                 .conTextura(texture)
@@ -138,18 +112,10 @@ public class DropBuilder {
                 .conSonido(sonido)
                 .conPuntos(10)
                 .comoRecurso()
-                .conEstrategia(new NormalFall())
                 .build();
     }
 
-    /**
-     * Crea un peligro con configuracion predeterminada y estrategia aleatoria.
-     * @param texture textura del peligro
-     * @param velocidad velocidad de caida
-     * @return un DangerDrop configurado
-     */
     public static DropItem crearPeligro(Texture texture, float velocidad) {
-        // asignar estrategia aleatoria para variedad
         MovementStrategy strategy;
         int random = MathUtils.random(1, 3);
         if (random == 1) {
@@ -166,6 +132,25 @@ public class DropBuilder {
                 .comoPeligro()
                 .conDaño(1)
                 .conEstrategia(strategy)
+                .build();
+    }
+
+    public static DropItem crearVida(Texture texture, float velocidad, Sound sonido) {
+        return new DropBuilder()
+                .conTextura(texture)
+                .conVelocidad(velocidad)
+                .conSonido(sonido)
+                .comoVida()
+                .build();
+    }
+
+    public static DropItem crearEscudo(Texture texture, float velocidad, Sound sonido) {
+        return new DropBuilder()
+                .conTextura(texture)
+                .conVelocidad(velocidad)
+                .conSonido(sonido)
+                .comoEscudo()
+                .conDuracionEscudo(3f)
                 .build();
     }
 }
