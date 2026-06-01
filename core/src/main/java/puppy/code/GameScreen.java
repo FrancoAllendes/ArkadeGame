@@ -11,8 +11,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 
 /**
  * Pantalla principal donde ocurre el juego.
- * Extiende BaseScreen aplicando Template Method (GM-8).
- * Reemplaza la logica de la clase Lluvia original.
+ * Extiende BaseScreen aplicando Template Method.
  */
 public class GameScreen extends BaseScreen {
 
@@ -24,16 +23,13 @@ public class GameScreen extends BaseScreen {
     private Texture survivorTexture;
     private Texture recursoTexture;
     private Texture peligroTexture;
+    private Texture fondoTexture;
 
     // sonidos
     private Sound sonidoRecolectar;
-    private Sound sonidoDaño;
+    private Sound sonidoDanio;
     private Music musicaFondo;
 
-    /**
-     * Constructor de GameScreen.
-     * @param game referencia al juego principal
-     */
     public GameScreen(GameLluvia game) {
         super(game);
     }
@@ -41,13 +37,14 @@ public class GameScreen extends BaseScreen {
     @Override
     public void show() {
         // cargar texturas
+        fondoTexture = new Texture(Gdx.files.internal("fondo.png"));
         survivorTexture = new Texture(Gdx.files.internal("survivor.png"));
         recursoTexture = new Texture(Gdx.files.internal("recurso.png"));
         peligroTexture = new Texture(Gdx.files.internal("peligro.png"));
 
         // cargar sonidos
         sonidoRecolectar = Gdx.audio.newSound(Gdx.files.internal("recolectar.mp3"));
-        sonidoDaño = Gdx.audio.newSound(Gdx.files.internal("danio.mp3"));
+        sonidoDanio = Gdx.audio.newSound(Gdx.files.internal("danio.mp3"));
         musicaFondo = Gdx.audio.newMusic(Gdx.files.internal("musica_fondo.mp3"));
 
         // iniciar musica de fondo
@@ -55,25 +52,20 @@ public class GameScreen extends BaseScreen {
         musicaFondo.play();
 
         // crear survivor
-        survivor = new Survivor(survivorTexture, sonidoDaño);
+        survivor = new Survivor(survivorTexture, sonidoDanio);
 
         // crear lista de drops
         drops = new Array<>();
         spawnDrop();
     }
 
-    /**
-     * Genera un nuevo drop aleatorio usando el Builder (GM-9).
-     */
     private void spawnDrop() {
         GameManager gm = GameManager.getInstance();
         DropItem drop;
 
         if (MathUtils.random(1, 10) < 3) {
-            // 20% probabilidad de peligro
             drop = DropBuilder.crearPeligro(peligroTexture, gm.getVelocidadBase());
         } else {
-            // 80% probabilidad de recurso
             drop = DropBuilder.crearRecurso(recursoTexture, gm.getVelocidadBase(), sonidoRecolectar);
         }
 
@@ -83,37 +75,29 @@ public class GameScreen extends BaseScreen {
 
     @Override
     protected void handleInput() {
-        // el input del survivor se maneja en su metodo update()
     }
 
     @Override
     protected void update(float delta) {
         GameManager gm = GameManager.getInstance();
-
-        // actualizar survivor
         survivor.update();
 
-        // generar nuevos drops segun el intervalo del GameManager
         if (TimeUtils.nanoTime() - lastDropTime > gm.getIntervaloSpawn()) {
             spawnDrop();
         }
 
-        // actualizar drops y verificar colisiones
         for (int i = 0; i < drops.size; i++) {
             DropItem drop = drops.get(i);
             drop.update();
 
-            // verificar si cayo fuera de pantalla
             if (drop.fueraDePantalla()) {
                 drops.removeIndex(i);
                 i--;
                 continue;
             }
 
-            // verificar colision con survivor usando Collidable (GM-4)
             if (drop.checkCollision(survivor)) {
                 drop.onPlayerCollision(survivor);
-                // sincronizar puntaje y vidas con GameManager
                 gm.setPuntaje(survivor.getPuntos());
                 gm.setVidas(survivor.getVidas());
                 drops.removeIndex(i);
@@ -121,7 +105,6 @@ public class GameScreen extends BaseScreen {
             }
         }
 
-        // verificar si el jugador murio
         if (!survivor.estaVivo()) {
             musicaFondo.stop();
             game.setScreen(new GameOverScreen(game));
@@ -131,10 +114,11 @@ public class GameScreen extends BaseScreen {
 
     @Override
     protected void draw(SpriteBatch batch) {
-        // dibujar survivor
+        // dibujar fondo cubriendo toda la pantalla
+        batch.draw(fondoTexture, 0, 0, 800, 480);
+
         survivor.draw(batch);
 
-        // dibujar drops
         for (DropItem drop : drops) {
             drop.draw(batch);
         }
@@ -152,9 +136,10 @@ public class GameScreen extends BaseScreen {
     public void dispose() {
         musicaFondo.dispose();
         sonidoRecolectar.dispose();
-        sonidoDaño.dispose();
+        sonidoDanio.dispose();
         survivorTexture.dispose();
         recursoTexture.dispose();
         peligroTexture.dispose();
+        fondoTexture.dispose();
     }
 }

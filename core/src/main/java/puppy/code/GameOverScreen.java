@@ -2,20 +2,23 @@ package puppy.code;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-/**
- * Pantalla de Game Over que muestra el puntaje final.
- * Extiende BaseScreen aplicando Template Method.
- */
 public class GameOverScreen extends BaseScreen {
 
-    /**
-     * Constructor de GameOverScreen.
-     * @param game referencia al juego principal
-     */
+    private Texture fondoTexture;
+    private GlyphLayout layout;
+
     public GameOverScreen(GameLluvia game) {
         super(game);
+    }
+
+    @Override
+    public void show() {
+        fondoTexture = new Texture(Gdx.files.internal("fondo.png"));
+        layout = new GlyphLayout();
     }
 
     @Override
@@ -32,19 +35,36 @@ public class GameOverScreen extends BaseScreen {
 
     @Override
     protected void draw(SpriteBatch batch) {
+        batch.draw(fondoTexture, 0, 0, 800, 480);
     }
 
     @Override
     protected void drawUI(SpriteBatch batch) {
         GameManager gm = GameManager.getInstance();
-        font.draw(batch, "GAME OVER", 330, 320);
-        font.draw(batch, "Has sido devorado!", 300, 280);
-        font.draw(batch, "Puntaje final: " + gm.getPuntaje(), 300, 240);
-        font.draw(batch, "Nivel alcanzado: " + gm.getNivel(), 300, 200);
-        font.draw(batch, "Presiona ENTER para volver al menu", 220, 130);
+
+        String titulo = "GAME OVER";
+        layout.setText(font, titulo);
+        font.draw(batch, titulo, (800 - layout.width) / 2, 320);
+
+        String msg = "Has sido devorado!";
+        layout.setText(font, msg);
+        font.draw(batch, msg, (800 - layout.width) / 2, 280);
+
+        String puntos = "Puntaje final: " + gm.getPuntaje();
+        layout.setText(font, puntos);
+        font.draw(batch, puntos, (800 - layout.width) / 2, 240);
+
+        String nivel = "Nivel alcanzado: " + gm.getNivel();
+        layout.setText(font, nivel);
+        font.draw(batch, nivel, (800 - layout.width) / 2, 200);
+
+        String instruccion = "Presiona ENTER para volver al menu";
+        layout.setText(font, instruccion);
+        font.draw(batch, instruccion, (800 - layout.width) / 2, 130);
     }
 
     @Override
-    public void show() {
+    public void dispose() {
+        if (fondoTexture != null) fondoTexture.dispose();
     }
 }
