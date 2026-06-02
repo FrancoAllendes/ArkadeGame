@@ -31,7 +31,7 @@ public class Survivor extends GameObject {
         this.sonidoHerido = sonidoHerido;
         this.vidas = 3;
         this.puntos = 0;
-        this.velocidadX = 400;
+        this.velocidadX = 440;
         this.herido = false;
         this.tiempoHeridoMax = 50;
         this.tiempoHerido = 0;

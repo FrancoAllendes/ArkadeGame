@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 
 /**
  * Clase que construye objetos DropItem paso a paso.
- * Implementa el patron Builder (GM-9).
+ * Implementa el patron Builder.
  */
 public class DropBuilder {
 
@@ -28,60 +28,18 @@ public class DropBuilder {
         this.tipo = "recurso";
     }
 
-    public DropBuilder conTextura(Texture texture) {
-        this.texture = texture;
-        return this;
-    }
-
-    public DropBuilder conVelocidad(float velocidadY) {
-        this.velocidadY = velocidadY;
-        return this;
-    }
-
-    public DropBuilder conEstrategia(MovementStrategy strategy) {
-        this.strategy = strategy;
-        return this;
-    }
-
-    public DropBuilder conSonido(Sound sonido) {
-        this.sonido = sonido;
-        return this;
-    }
-
-    public DropBuilder conPuntos(int puntos) {
-        this.puntos = puntos;
-        return this;
-    }
-
-    public DropBuilder conDaño(int daño) {
-        this.daño = daño;
-        return this;
-    }
-
-    public DropBuilder conDuracionEscudo(float duracion) {
-        this.duracionEscudo = duracion;
-        return this;
-    }
-
-    public DropBuilder comoPeligro() {
-        this.tipo = "peligro";
-        return this;
-    }
-
-    public DropBuilder comoRecurso() {
-        this.tipo = "recurso";
-        return this;
-    }
-
-    public DropBuilder comoVida() {
-        this.tipo = "vida";
-        return this;
-    }
-
-    public DropBuilder comoEscudo() {
-        this.tipo = "escudo";
-        return this;
-    }
+    public DropBuilder conTextura(Texture texture) { this.texture = texture; return this; }
+    public DropBuilder conVelocidad(float velocidadY) { this.velocidadY = velocidadY; return this; }
+    public DropBuilder conEstrategia(MovementStrategy strategy) { this.strategy = strategy; return this; }
+    public DropBuilder conSonido(Sound sonido) { this.sonido = sonido; return this; }
+    public DropBuilder conPuntos(int puntos) { this.puntos = puntos; return this; }
+    public DropBuilder conDaño(int daño) { this.daño = daño; return this; }
+    public DropBuilder conDuracionEscudo(float duracion) { this.duracionEscudo = duracion; return this; }
+    public DropBuilder comoPeligro() { this.tipo = "peligro"; return this; }
+    public DropBuilder comoRecurso() { this.tipo = "recurso"; return this; }
+    public DropBuilder comoVida() { this.tipo = "vida"; return this; }
+    public DropBuilder comoEscudo() { this.tipo = "escudo"; return this; }
+    public DropBuilder comoSupplyDrop() { this.tipo = "supply"; return this; }
 
     public DropItem build() {
         DropItem drop;
@@ -95,6 +53,9 @@ public class DropBuilder {
             case "escudo":
                 drop = new ShieldDrop(texture, velocidadY, sonido, duracionEscudo);
                 break;
+            case "supply":
+                drop = new SupplyDrop(texture, velocidadY, sonido, puntos);
+                break;
             default:
                 drop = new ResourceDrop(texture, velocidadY, sonido, puntos);
                 break;
@@ -107,50 +68,49 @@ public class DropBuilder {
 
     public static DropItem crearRecurso(Texture texture, float velocidad, Sound sonido) {
         return new DropBuilder()
-                .conTextura(texture)
-                .conVelocidad(velocidad)
-                .conSonido(sonido)
-                .conPuntos(10)
-                .comoRecurso()
-                .build();
+                .conTextura(texture).conVelocidad(velocidad)
+                .conSonido(sonido).conPuntos(10).comoRecurso().build();
     }
 
     public static DropItem crearPeligro(Texture texture, float velocidad) {
         MovementStrategy strategy;
         int random = MathUtils.random(1, 3);
-        if (random == 1) {
-            strategy = new ZigZagFall();
-        } else if (random == 2) {
-            strategy = new FastFall();
-        } else {
-            strategy = new NormalFall();
-        }
+        if (random == 1) strategy = new ZigZagFall();
+        else if (random == 2) strategy = new FastFall();
+        else strategy = new NormalFall();
 
         return new DropBuilder()
-                .conTextura(texture)
-                .conVelocidad(velocidad)
-                .comoPeligro()
-                .conDaño(1)
-                .conEstrategia(strategy)
-                .build();
+                .conTextura(texture).conVelocidad(velocidad)
+                .comoPeligro().conDaño(1).conEstrategia(strategy).build();
     }
 
     public static DropItem crearVida(Texture texture, float velocidad, Sound sonido) {
         return new DropBuilder()
-                .conTextura(texture)
-                .conVelocidad(velocidad)
-                .conSonido(sonido)
-                .comoVida()
-                .build();
+                .conTextura(texture).conVelocidad(velocidad)
+                .conSonido(sonido).comoVida().build();
     }
 
     public static DropItem crearEscudo(Texture texture, float velocidad, Sound sonido) {
         return new DropBuilder()
-                .conTextura(texture)
-                .conVelocidad(velocidad)
-                .conSonido(sonido)
-                .comoEscudo()
-                .conDuracionEscudo(3f)
-                .build();
+                .conTextura(texture).conVelocidad(velocidad)
+                .conSonido(sonido).comoEscudo().conDuracionEscudo(3f).build();
+    }
+
+    public static DropItem crearSupplyDrop(Texture texture, float velocidad, Sound sonido) {
+        return new DropBuilder()
+                .conTextura(texture).conVelocidad(velocidad * 0.4f)
+                .conSonido(sonido).conPuntos(50).comoSupplyDrop().build();
+    }
+
+    public static DropItem crearElemento(Texture texture, float velocidad, Sound sonido) {
+        return new DropBuilder()
+                .conTextura(texture).conVelocidad(velocidad)
+                .conSonido(sonido).conPuntos(150).comoRecurso().build();
+    }
+
+    public static DropItem crearEnemigoTek(Texture texture, float velocidad) {
+        return new DropBuilder()
+                .conTextura(texture).conVelocidad(velocidad * 1.35f)
+                .comoPeligro().conDaño(1).conEstrategia(new FastFall()).build();
     }
 }

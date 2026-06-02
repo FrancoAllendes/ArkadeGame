@@ -3,6 +3,7 @@ package puppy.code;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -10,6 +11,8 @@ public class MenuScreen extends BaseScreen {
 
     private Texture fondoTexture;
     private GlyphLayout layout;
+    private BitmapFont fontTitulo;
+    private Texture logoTexture;
 
     public MenuScreen(GameLluvia game) {
         super(game);
@@ -19,6 +22,9 @@ public class MenuScreen extends BaseScreen {
     public void show() {
         fondoTexture = new Texture(Gdx.files.internal("fondo.png"));
         layout = new GlyphLayout();
+        fontTitulo = new BitmapFont();
+        fontTitulo.getData().setScale(3f);
+        logoTexture = new Texture(Gdx.files.internal("logo.png"));
     }
 
     @Override
@@ -37,14 +43,17 @@ public class MenuScreen extends BaseScreen {
     @Override
     protected void draw(SpriteBatch batch) {
         batch.draw(fondoTexture, 0, 0, 800, 480);
+        batch.draw(logoTexture, (800 - 128) / 2, 350, 128, 128);
     }
 
     @Override
     protected void drawUI(SpriteBatch batch) {
-        String titulo = "ARK ARCADE";
-        layout.setText(font, titulo);
-        font.draw(batch, titulo, (800 - layout.width) / 2, 300);
+        // titulo grande centrado
+        String titulo = "ARKADE";
+        layout.setText(fontTitulo, titulo);
+        fontTitulo.draw(batch, titulo, (800 - layout.width) / 2, 320);
 
+        // subtitulos centrados
         String sub1 = "Sobrevive recolectando recursos";
         layout.setText(font, sub1);
         font.draw(batch, sub1, (800 - layout.width) / 2, 250);
@@ -61,5 +70,7 @@ public class MenuScreen extends BaseScreen {
     @Override
     public void dispose() {
         if (fondoTexture != null) fondoTexture.dispose();
+        if (fontTitulo != null) fontTitulo.dispose();
+        if (logoTexture != null) logoTexture.dispose();
     }
 }
