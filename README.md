@@ -1,33 +1,68 @@
-# GameLluvia2024
+# Videojuego (GM) - Arkade
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+**Asignatura:** INF2236-1 - Programación Avanzada  
+**Periodo:** 2026-1  
+**Institución:** Pontificia Universidad Católica de Valparaíso  
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+## Descripción del Proyecto
+Arkade es un videojuego de supervivencia desarrollado en Java con el motor LibGDX, inspirado en el universo de ARK: Survival Evolved. El jugador controla a un superviviente que debe recolectar recursos (bayas, carne, metal) que caen del cielo mientras esquiva ataques de dinosaurios. El juego cuenta con un sistema de niveles progresivo, drops especiales de vida y escudo, un dinosaurio aliado con efecto imán, una zona secreta (Tek Cave) y un menú de pausa con control de volumen.
 
-## Platforms
+## Características Principales
+* Sistema de niveles con dificultad progresiva.
+* 6 tipos de drops: recurso, peligro, vida, escudo, supply drop y elemento.
+* Dinosaurio aliado temporal que recolecta recursos automáticamente.
+* Zona secreta Tek Cave al recolectar 3 supply drops.
+* Menú de pausa con control de volumen.
+* 3 patrones de movimiento para enemigos (normal, zigzag, rápido).
+* 4 patrones de diseño: Singleton, Strategy, Template Method y Builder.
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+## Tecnologías Utilizadas
+* **Lenguaje:** Java (JDK 8)
+* **IDE:** Eclipse IDE for Java Developers
+* **Motor:** LibGDX 1.12.1
+* **Build System:** Gradle
 
-## Gradle
+## Controles
+* **← →** Mover al superviviente.
+* **ESC** Pausar / reanudar el juego.
+* **↑ ↓ (en pausa)** Subir / bajar volumen.
+* **ENTER** Iniciar juego / volver al menú.
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+## Instrucciones de Instalación y Ejecución
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+### Requisitos previos
+* Tener instalado **Eclipse IDE for Java Developers**.
+* Tener instalado **Oracle JDK 8** o superior.
+* Tener instalado el plugin **Buildship Gradle Integration** en Eclipse (viene preinstalado en versiones recientes).
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+### Paso 1 — Descomprimir el proyecto
+1. Descomprimir el archivo `.zip` del proyecto en una carpeta de fácil acceso (por ejemplo, el Escritorio).
+
+### Paso 2 — Importar en Eclipse
+1. Abrir Eclipse IDE.
+2. Ir a `File` > `Import`.
+3. Seleccionar `Gradle` > `Existing Gradle Project` y hacer clic en `Next`.
+4. En `Project root directory`, hacer clic en `Browse` y seleccionar la carpeta descomprimida del proyecto.
+5. Hacer clic en `Finish` y esperar a que Eclipse descargue las dependencias automáticamente (requiere conexión a internet, puede tardar unos minutos).
+
+### Paso 3 — Ejecutar el juego
+1. En el `Package Explorer`, expandir el módulo `lwjgl3`.
+2. Navegar a `src/main/java` > `puppy.code.lwjgl3`.
+3. Hacer clic derecho sobre la clase `Lwjgl3Launcher.java`.
+4. Seleccionar `Run As` > `Java Application`.
+5. Se abrirá la ventana del juego mostrando el menú principal.
+
+### Solución de problemas comunes
+* **Error de dependencias:** Hacer clic derecho sobre el proyecto padre > `Gradle` > `Refresh Gradle Project`.
+* **Error de compilación:** Ir a `Project` > `Clean` > seleccionar todos los proyectos > `Clean`.
+* **Error de assets no encontrados:** Verificar que la carpeta `assets` contenga todos los archivos de imagen y sonido necesarios.
+
+## Estructura del Proyecto
+* `core/src/main/java/puppy/code/` — Clases principales del juego (21 clases).
+* `lwjgl3/` — Módulo de lanzamiento para escritorio.
+* `assets/` — Imágenes, sonidos y música del juego.
+
+## Autores
+* Franco Allendes
+* Francisco Ceballos
+* Lucas Salamanca
